@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-typecheck:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - name: ESLint
+        run: npx eslint . --max-warnings 0
+      - name: TypeScript
+        run: npx tsc --noEmit
+
+  test:
+    name: Unit & Component Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - name: Run Vitest
+        run: npm run test:coverage
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      GEMINI_API_KEY: ci_placeholder_key_for_build
+      NEXT_PUBLIC_SPLINE_URL: https://prod.spline.design/placeholder/scene.splinecode
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - name: Next.js Build
+        run: npm run build
+
+  size-check:
+    name: Repository Size Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check repository size
+        run: |
+          SIZE_BYTES=$(git count-objects -vH | grep "size-pack:" | awk '{print $2}' | sed 's/[^0-9.]//g')
+          echo "Repository pack size: ${SIZE_BYTES}"
+          # Also check working tree size
+          TREE_SIZE=$(du -sb . --exclude=.git | awk '{print $1}')
+          TREE_SIZE_MB=$(echo "scale=2; $TREE_SIZE / 1048576" | bc)
+          echo "Working tree size: ${TREE_SIZE_MB} MB"
+          # Fail if tree exceeds 10 MB (excludes .git, node_modules is gitignored)
+          if (( $(echo "$TREE_SIZE > 10485760" | bc -l) )); then
+            echo "❌ Repository size exceeds 10 MB limit!"
+            exit 1
+          fi
+          echo "✅ Repository size is within the 10 MB limit."
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - name: npm audit
+        run: npm audit --audit-level=high

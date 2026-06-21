@@ -1,49 +1,194 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@import "tailwindcss";
+
+/* ============================================================
+   BitePrint Coach — Design System
+   Tailwind v4 CSS-first configuration via @theme
+   ============================================================ */
+
+@theme {
+  /* --- Typography --- */
+  --font-sans: "Inter", "Inter Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* --- Brand Colors (OKLCH for perceptual uniformity) --- */
+  /* Leaf Green — primary brand */
+  --color-leaf-50: oklch(97% 0.04 145);
+  --color-leaf-100: oklch(93% 0.08 145);
+  --color-leaf-200: oklch(87% 0.12 145);
+  --color-leaf-300: oklch(79% 0.16 145);
+  --color-leaf-400: oklch(70% 0.19 145);
+  --color-leaf-500: oklch(62% 0.19 145);
+  --color-leaf-600: oklch(53% 0.17 145);
+  --color-leaf-700: oklch(43% 0.14 145);
+  --color-leaf-800: oklch(33% 0.10 145);
+  --color-leaf-900: oklch(23% 0.07 145);
+  --color-leaf-950: oklch(15% 0.04 145);
+
+  /* Carbon Gray — neutral surfaces */
+  --color-carbon-50: oklch(97% 0.005 240);
+  --color-carbon-100: oklch(93% 0.008 240);
+  --color-carbon-200: oklch(87% 0.01 240);
+  --color-carbon-300: oklch(78% 0.012 240);
+  --color-carbon-400: oklch(65% 0.015 240);
+  --color-carbon-500: oklch(52% 0.018 240);
+  --color-carbon-600: oklch(42% 0.018 240);
+  --color-carbon-700: oklch(32% 0.015 240);
+  --color-carbon-800: oklch(22% 0.012 240);
+  --color-carbon-900: oklch(14% 0.008 240);
+  --color-carbon-950: oklch(9% 0.005 240);
+
+  /* Impact Red — high-impact indicator */
+  --color-impact-low: oklch(62% 0.19 145);
+  --color-impact-moderate: oklch(72% 0.18 85);
+  --color-impact-high: oklch(58% 0.22 25);
+
+  /* Grade colors */
+  --color-grade-a: oklch(62% 0.19 145);
+  --color-grade-b: oklch(70% 0.18 160);
+  --color-grade-c: oklch(72% 0.18 85);
+  --color-grade-d: oklch(68% 0.20 55);
+  --color-grade-f: oklch(58% 0.22 25);
+
+  /* --- Spacing scale extension --- */
+  --spacing-18: 4.5rem;
+  --spacing-22: 5.5rem;
+  --spacing-88: 22rem;
+  --spacing-128: 32rem;
+
+  /* --- Border radius --- */
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+
+  /* --- Animation durations --- */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
+
+  /* --- Shadows (dark-mode aware) --- */
+  --shadow-glow-leaf: 0 0 24px oklch(62% 0.19 145 / 0.3);
+  --shadow-glow-carbon: 0 0 24px oklch(22% 0.012 240 / 0.4);
+  --shadow-card: 0 4px 24px oklch(9% 0.005 240 / 0.4);
+  --shadow-label: 0 8px 40px oklch(9% 0.005 240 / 0.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ============================================================
+   Base Styles
+   ============================================================ */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-carbon-950);
+    color: var(--color-carbon-50);
+    min-height: 100dvh;
+    line-height: 1.6;
+  }
+
+  /* Focus styles for keyboard navigation (WCAG 2.1 AA) */
+  :focus-visible {
+    outline: 2px solid var(--color-leaf-400);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Remove default focus ring (replaced by :focus-visible) */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Improve text selection */
+  ::selection {
+    background-color: var(--color-leaf-500);
+    color: var(--color-carbon-950);
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-html {
-  height: 100%;
-}
+/* ============================================================
+   Utility Classes (custom — not in Tailwind's default set)
+   ============================================================ */
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
+@layer utilities {
+  .glass {
+    background: oklch(14% 0.008 240 / 0.6);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid oklch(78% 0.012 240 / 0.08);
+  }
 
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  .glass-strong {
+    background: oklch(14% 0.008 240 / 0.85);
+    backdrop-filter: blur(32px) saturate(1.8);
+    border: 1px solid oklch(78% 0.012 240 / 0.12);
+  }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
+  .text-gradient-leaf {
+    background: linear-gradient(
+      135deg,
+      var(--color-leaf-300) 0%,
+      var(--color-leaf-500) 50%,
+      var(--color-leaf-400) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  .glow-leaf {
+    box-shadow: var(--shadow-glow-leaf);
+  }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+  .label-panel {
+    background: oklch(97% 0.04 145 / 0.03);
+    border: 2px solid var(--color-carbon-700);
+    border-radius: var(--radius-2xl);
+  }
+
+  .scan-line {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--color-leaf-400) 50%,
+      transparent 100%
+    );
+    height: 2px;
+    opacity: 0.8;
+  }
+
+  /* Visually hidden (accessible) */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 }
